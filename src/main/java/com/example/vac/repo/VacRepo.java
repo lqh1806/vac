@@ -12,14 +12,23 @@ import java.util.List;
 public interface VacRepo extends JpaRepository<Vac, String> {
     @Query(
             value = """
-            SELECT *
+            SELECT vac
             FROM vac
             LIMIT :limit OFFSET :offset
         """,
             nativeQuery = true
     )
-    List<Vac> findByPaging(
+    List<String> findByPaging(
             @Param("limit") int limit,
             @Param("offset") int offset
     );
+
+    @Query(value = """
+
+            SELECT reltuples::bigint AS estimate
+            FROM pg_class
+            WHERE relname = 'vac';
+    
+        """, nativeQuery = true)
+    long countRecords();
 }
