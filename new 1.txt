@@ -1,0 +1,3 @@
+docker run -d --name=postgres-db -e POSTGRES_USER=root -e POSTGRES_PASSWORD=Ab123456 -e POSTGRES_DB=vac -p 5432:5432 -v postgres_data:/var/lib/postgresql postgres:15
+
+java -Duser.timezone=Asia/Ho_Chi_Minh -jar .\target\vac-0.0.1-SNAPSHOT.jar
