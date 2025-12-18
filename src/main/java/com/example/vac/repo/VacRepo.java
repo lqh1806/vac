@@ -25,9 +25,7 @@ public interface VacRepo extends JpaRepository<Vac, String> {
 
     @Query(value = """
 
-            SELECT reltuples::bigint AS estimate
-            FROM pg_class
-            WHERE relname = 'vac';
+            select count(vac) from vac;
     
         """, nativeQuery = true)
     long countRecords();

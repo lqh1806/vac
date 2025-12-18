@@ -6,7 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.trie.PatriciaTrie;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedMap;
 
 @Service
@@ -17,16 +19,18 @@ public class VacService {
 
     private final PatriciaTrie<String> trie = new PatriciaTrie<>();
 
+    private final Map<Integer, PatriciaTrie<String>> trieMap = new HashMap<>();
+
     private static final int PAGE_SIZE = 10000;
 
     public void processAllRecords() {
         long numberOfRecords = vacRepo.countRecords();
-        long numberOfPages = numberOfRecords / PAGE_SIZE + 1;
+        long numberOfPages = (int) Math.ceil((double) numberOfRecords / PAGE_SIZE);
         int pageNumber = 0;
 
-        while (pageNumber < numberOfPages) {
+        while (pageNumber <= numberOfPages) {
             List<String> records = fetchPage(pageNumber);
-
+            log.info("PAGE: " + pageNumber);
             if (records.isEmpty()) {
                 break;
             }
@@ -37,8 +41,42 @@ public class VacService {
         }
     }
 
+    public void processAllRecordsWithArr() {
+        long numberOfRecords = vacRepo.countRecords();
+        long numberOfPages = (int) Math.ceil((double) numberOfRecords / PAGE_SIZE);
+        int pageNumber = 0;
+
+        while (pageNumber <= numberOfPages) {
+            List<String> records = fetchPage(pageNumber);
+
+            if (records.isEmpty()) {
+                break;
+            }
+
+            processArr(records);
+
+            pageNumber++;
+        }
+        trieMap.forEach((key, value) -> {
+            log.info("Trie contain vac lengh: {} ======== Trie size: {}", key, value.size());
+        });
+    }
+
     private List<String> fetchPage(int pageNumber) {
         return vacRepo.findByPaging(VacService.PAGE_SIZE, pageNumber);
+    }
+
+    private void processArr(List<String> records) {
+        for (String record : records) {
+            if (trieMap.get(record.length()) == null) {
+                PatriciaTrie<String> trieEl = new PatriciaTrie<>();
+                trieEl.put(record, "12345678910LKJHGFasdhqweyrtuiop12345678910LKJHGFasdhqweyrtuiop12345678910LKJHGFasdhqweyrtuiop12345678910LKJHGFasdhqweyrtuiop12345678910LKJHGFasdhqweyrtuiop");
+                trieMap.put(record.length(), trieEl);
+            } else {
+                PatriciaTrie<String> trieEl = trieMap.get(record.length());
+                trieEl.put(record, "12345678910LKJHGFasdhqweyrtuiop12345678910LKJHGFasdhqweyrtuiop12345678910LKJHGFasdhqweyrtuiop12345678910LKJHGFasdhqweyrtuiop12345678910LKJHGFasdhqweyrtuiop");
+            }
+        }
     }
 
     private void process(List<String> records) {
@@ -70,6 +108,21 @@ public class VacService {
             }
         }
         return res;
+    }
+
+    public Map<String, String> findByVacArr(String vac) {
+
+        int minLength = 3;
+        Map<String, String> finalRes = new HashMap<>();
+        while (minLength < vac.length()) {
+            PatriciaTrie<String> trieEl = trieMap.get(minLength + 1);
+            String res = trieEl.get(vac.substring(0, minLength + 1));
+            if (res != null) {
+                finalRes.put(vac.substring(0, minLength + 1), res);
+            }
+            minLength++;
+        }
+        return finalRes;
     }
 
 }

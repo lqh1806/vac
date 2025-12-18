@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Map;
 import java.util.Objects;
 import java.util.SortedMap;
 
@@ -34,10 +35,24 @@ public class VacController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PostMapping("/load/arr")
+    public ResponseEntity<?> loadArr() {
+        vacService.processAllRecordsWithArr();
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @GetMapping("/get")
     public ResponseEntity<?> get(@RequestParam String vac) {
 //        vacService.initDataTest();
         SortedMap<String, String> res = vacService.findByVac(vac);
+        if (Objects.isNull(res)) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @GetMapping("/get-by-arr")
+    public ResponseEntity<?> getByArr(@RequestParam String vac) {
+//        vacService.initDataTest();
+        Map<String, String> res = vacService.findByVacArr(vac);
         if (Objects.isNull(res)) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
