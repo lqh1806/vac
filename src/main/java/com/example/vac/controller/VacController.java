@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.Objects;
-import java.util.SortedMap;
 
 @CrossOrigin(origins = "*")
 @RestController
@@ -44,7 +43,15 @@ public class VacController {
     @GetMapping("/get")
     public ResponseEntity<?> get(@RequestParam String vac) {
 //        vacService.initDataTest();
-        SortedMap<String, String> res = vacService.findByVac(vac);
+        Map<String, String> res = vacService.findByVac(vac);
+        if (Objects.isNull(res)) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
+    @GetMapping("/check-insert")
+    public ResponseEntity<?> checkInsert(@RequestParam String vac) {
+//        vacService.initDataTest();
+        Map<String, String> res = vacService.checkForInsert(vac);
         if (Objects.isNull(res)) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
@@ -61,5 +68,12 @@ public class VacController {
     public ResponseEntity<?> loadRedisVac() {
         vacRedisService.processAllRecords();
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @GetMapping("/redis/get")
+    public ResponseEntity<?> getRedisVac(@RequestParam String vac) {
+        String res = vacRedisService.findByVac(vac);
+        if (Objects.isNull(res)) return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 }

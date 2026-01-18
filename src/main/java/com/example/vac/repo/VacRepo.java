@@ -23,6 +23,19 @@ public interface VacRepo extends JpaRepository<Vac, String> {
             @Param("offset") int offset
     );
 
+    @Query(
+            value = """
+            SELECT *
+            FROM vac
+            LIMIT :limit OFFSET :offset
+        """,
+            nativeQuery = true
+    )
+    List<Vac> findFullByPaging(
+            @Param("limit") int limit,
+            @Param("offset") int offset
+    );
+
     @Query(value = """
 
             select count(vac) from vac;

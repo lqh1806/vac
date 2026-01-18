@@ -17,9 +17,9 @@ import java.util.SortedMap;
 public class VacService {
     private final VacRepo vacRepo;
 
-    private final PatriciaTrie<String> trie = new PatriciaTrie<>();
+    private static final PatriciaTrie<String> trie = new PatriciaTrie<>();
 
-    private final Map<Integer, PatriciaTrie<String>> trieMap = new HashMap<>();
+    private static final Map<Integer, PatriciaTrie<String>> trieMap = new HashMap<>();
 
     private static final int PAGE_SIZE = 10000;
 
@@ -95,16 +95,43 @@ public class VacService {
         trie.put("123AB", "12345678910LKJHGFasdhqweyrtuiop12345678910LKJHGFasdhqweyrtuiop12345678910LKJHGFasdhqweyrtuiop12345678910LKJHGFasdhqweyrtuiop12345678910LKJHGFasdhqweyrtuiop");
     }
 
-    public SortedMap<String, String> findByVac(String vac) {
+    public Map<String, String> findByVac(String vac) {
+        Map<String, String> res = new HashMap<>();
+        for (int i = 4; i <= 10 && i <= vac.length(); i++) {
+            String subVac = vac.substring(0, i);
+            String trieFind = trie.get(subVac);
+            if (trieFind != null) {
+                res.put(subVac, trieFind);
+                return res;
+            }
+        }
+
+        return res;
+
+//        SortedMap<String, String> res = null;
+//        int minLength = 3;
+//        while (minLength < vac.length()) {
+//            res = trie.prefixMap(vac.substring(0, minLength + 1));
+//            if (!res.isEmpty()) {
+//                break;
+//            }
+//            else {
+//                minLength++;
+//            }
+//        }
+//        return res;
+    }
+
+    public Map<String, String> checkForInsert(String vac) {
         SortedMap<String, String> res = null;
         int minLength = 3;
-        while (minLength < vac.length()) {
-            res = trie.prefixMap(vac.substring(0, minLength + 1));
+        int vacLength = vac.length();
+        while (vacLength > minLength) {
+            res = trie.prefixMap(vac.substring(0, vacLength));
             if (!res.isEmpty()) {
                 break;
-            }
-            else {
-                minLength++;
+            } else {
+                vacLength--;
             }
         }
         return res;
